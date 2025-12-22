@@ -3,387 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelacak Anime Saya - Simpan Otomatis</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Minimalist Parallax Portfolio</title>
     <style>
+        /* 1. SETUP DASAR & MINIMALIS */
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #1a1a1a;
+            --accent-color: #333;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #111827, #1a202c, #2d3748);
-            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden; /* Mencegah scroll samping */
+        }
+
+        /* 2. CUSTOM CURSOR (INTERAKTIF) */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--text-color);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s;
+            mix-blend-mode: difference;
         }
         
-        /* Glassmorphism Effect */
-        .glass-effect {
-            background: rgba(31, 41, 55, 0.6); /* bg-gray-800 with opacity */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .cursor.hovered {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-color: white;
         }
 
-        /* Custom Input Styles */
-        .form-input, .form-select {
-            background-color: rgba(17, 24, 39, 0.7); /* bg-gray-900 with opacity */
-            border: 1px solid #374151;
-            transition: all 0.3s ease;
-        }
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: #6366f1; /* indigo-500 */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #111827;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4f46e5;
-            border-radius: 5px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6366f1;
+        /* 3. PARALLAX SECTIONS */
+        section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        /* Efek Sticky untuk Parallax tumpuk */
+        .sticky-section {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-color);
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.05); /* Bayangan halus */
         }
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+
+        /* HERO SECTION */
+        .hero {
+            z-index: 1;
+            flex-direction: column;
+            align-items: flex-start;
+            padding-left: 10%;
+        }
+
+        h1 {
+            font-size: 5rem;
+            line-height: 1;
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: -2px;
+            opacity: 0;
+            animation: fadeIn Up 1s forwards 0.5s;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 20px;
+            opacity: 0.6;
+        }
+
+        /* SHAPE MENGAMBANG (PARALLAX ELEMEN) */
+        .floating-shape {
+            position: absolute;
+            right: 10%;
+            top: 20%;
+            width: 300px;
+            height: 300px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        /* ABOUT SECTION */
+        .about {
+            z-index: 2;
+            background-color: #1a1a1a;
+            color: #f4f4f4;
+        }
+
+        .content-box {
+            max-width: 600px;
+        }
+
+        /* WORK SECTION */
+        .work {
+            z-index: 3;
+            background-color: #f4f4f4;
+            color: #1a1a1a;
         }
         
-        @keyframes fadeOut {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0; transform: scale(0.9); }
-        }
-        .fade-out {
-            animation: fadeOut 0.4s ease-in forwards;
+        .project-card {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s ease;
         }
 
-        /* Modal Styles */
-        .modal-backdrop {
-            transition: opacity 0.3s ease;
+        .project-card:hover {
+            transform: scale(0.98); /* Interaktif saat hover */
         }
-        .modal-content {
-            transition: transform 0.3s ease, opacity 0.3s ease;
+
+        /* ANIMATION */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        /* TOMBOL HOVER TARGET */
+        a.btn {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid currentColor;
+            padding-bottom: 5px;
+            cursor: none; /* Hilangkan kursor asli */
+        }
+
     </style>
 </head>
-<body class="text-gray-200 min-h-screen antialiased">
+<body>
 
-    <!-- Background decorative shapes -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-900/50 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-900/50 rounded-full filter blur-3xl opacity-50 animate-pulse animation-delay-4000"></div>
-    </div>
+    <div class="cursor" id="cursor"></div>
 
-    <div class="container mx-auto p-4 md:p-8">
-        
-        <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                Pelacak Anime Saya
-            </h1>
-            <p class="text-gray-400 mt-3 max-w-xl mx-auto">Catat semua anime yang sedang, akan, atau telah Anda tonton. Data disimpan otomatis di browser Anda.</p>
-        </header>
+    <section class="sticky-section hero">
+        <div class="floating-shape" id="shape"></div>
+        <h1>Hello.<br>I am a Creator.</h1>
+        <p class="subtitle">Scrolling down to discover more.</p>
+    </section>
 
-        <div class="max-w-2xl mx-auto glass-effect p-6 rounded-2xl shadow-2xl mb-10">
-            <form id="anime-form">
-                <input type="hidden" id="anime-id">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="md:col-span-2">
-                        <label for="anime-title" class="block mb-2 text-sm font-medium text-gray-300">Judul Anime</label>
-                        <input type="text" id="anime-title" class="form-input w-full p-3 rounded-lg text-white" placeholder="Contoh: Frieren: Beyond Journey's End" required>
-                    </div>
-                    <div>
-                        <label for="anime-episode" class="block mb-2 text-sm font-medium text-gray-300">Episode Terakhir</p>
-                        <input type="number" id="anime-episode" class="form-input w-full p-3 rounded-lg text-white" placeholder="12" min="0" required>
-                    </div>
-                    <div>
-                        <label for="anime-status" class="block mb-2 text-sm font-medium text-gray-300">Status</label>
-                        <select id="anime-status" class="form-select w-full p-3 rounded-lg text-white">
-                            <option value="Menonton">Menonton</option>
-                            <option value="Selesai">Selesai</option>
-                            <option value="Direncanakan">Direncanakan</option>
-                            <option value="Ditunda">Ditunda</option>
-                            <option value="Ditinggalkan">Ditinggalkan</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" id="cancel-edit-btn" class="hidden px-6 py-2.5 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold transition-all duration-300">Batal</button>
-                    <button type="submit" id="submit-btn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-600/30">Tambah Anime</button>
-                </div>
-            </form>
+    <section class="sticky-section about">
+        <div class="content-box">
+            <h2>Minimalist Approach</h2>
+            <p>Saya percaya bahwa desain yang baik adalah sesedikit mungkin desain. Fokus pada esensi, fungsi, dan kejernihan.</p>
+            <a href="#" class="btn hover-target">Read My Bio</a>
         </div>
+    </section>
 
-        <div id="anime-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Anime cards will be rendered here -->
-        </div>
-    </div>
-
-    <!-- Custom Modal -->
-    <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 modal-backdrop hidden">
-        <div class="glass-effect rounded-2xl shadow-2xl w-full max-w-md p-6 modal-content">
-            <h3 id="modal-title" class="text-xl font-bold text-white">Konfirmasi</h3>
-            <p id="modal-message" class="text-gray-300 mt-2 mb-6">Apakah Anda yakin?</p>
-            <div class="flex justify-end space-x-3">
-                <button id="modal-cancel-btn" class="px-5 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg font-semibold transition-colors">Batal</button>
-                <button id="modal-confirm-btn" class="px-5 py-2 bg-red-600 hover:bg-red-500 rounded-lg font-semibold transition-colors">Hapus</button>
+    <section class="sticky-section work">
+        <div class="content-box">
+            <h2>Latest Work</h2>
+            <div class="project-card hover-target">
+                <h3>Project Alpha</h3>
             </div>
         </div>
-    </div>
-    
-    <!-- Custom Alert/Notification -->
-    <div id="notification-container" class="fixed bottom-5 right-5 z-50"></div>
-
+    </section>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM Elements ---
-        const animeForm = document.getElementById('anime-form');
-        const animeIdInput = document.getElementById('anime-id');
-        const animeTitleInput = document.getElementById('anime-title');
-        const animeEpisodeInput = document.getElementById('anime-episode');
-        const animeStatusInput = document.getElementById('anime-status');
-        const animeListContainer = document.getElementById('anime-list');
-        const submitBtn = document.getElementById('submit-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const modal = document.getElementById('custom-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        const notificationContainer = document.getElementById('notification-container');
+        // 1. LOGIKA CUSTOM CURSOR
+        const cursor = document.getElementById('cursor');
+        const hoverTargets = document.querySelectorAll('.hover-target');
 
-        // --- Application State ---
-        let animeData = [];
-        let isEditMode = false;
-        let resolveConfirm;
-
-        // --- Custom Modal & Notification ---
-        const showNotification = (message, type = 'success') => {
-            const colors = {
-                success: 'bg-green-500',
-                error: 'bg-red-500',
-                info: 'bg-blue-500'
-            };
-            const notif = document.createElement('div');
-            notif.className = `px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} mb-2 fade-in`;
-            notif.textContent = message;
-            notificationContainer.appendChild(notif);
-            setTimeout(() => {
-                notif.classList.remove('fade-in');
-                notif.classList.add('fade-out');
-                notif.addEventListener('animationend', () => notif.remove());
-            }, 3000);
-        };
-
-        const showConfirmation = (title, message) => {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            return new Promise(resolve => {
-                resolveConfirm = resolve;
-            });
-        };
-
-        modalConfirmBtn.addEventListener('click', () => {
-            if (resolveConfirm) resolveConfirm(true);
-            closeModal();
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
         });
 
-        modalCancelBtn.addEventListener('click', () => {
-             if (resolveConfirm) resolveConfirm(false);
-            closeModal();
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                 if (resolveConfirm) resolveConfirm(false);
-                 closeModal();
-            }
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            target.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        const closeModal = () => {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            resolveConfirm = null;
-        };
-
-        // --- DATA HANDLING ---
-        const loadData = () => {
-            const data = localStorage.getItem('animeTrackerData');
-            animeData = data ? JSON.parse(data) : [];
-        };
-
-        const saveData = () => {
-            localStorage.setItem('animeTrackerData', JSON.stringify(animeData));
-        };
-
-        // --- RENDERING ---
-        const getStatusBadge = (status) => {
-            switch (status) {
-                case 'Menonton': return 'bg-blue-500/80 text-blue-100';
-                case 'Selesai': return 'bg-green-500/80 text-green-100';
-                case 'Direncanakan': return 'bg-yellow-500/80 text-yellow-100';
-                case 'Ditunda': return 'bg-purple-500/80 text-purple-100';
-                case 'Ditinggalkan': return 'bg-red-500/80 text-red-100';
-                default: return 'bg-gray-500/80 text-gray-100';
-            }
-        };
-
-        const renderAnimeList = () => {
-            animeListContainer.innerHTML = '';
-            if (animeData.length === 0) {
-                animeListContainer.innerHTML = `<div class="text-gray-400 col-span-full text-center glass-effect p-8 rounded-2xl">
-                    <h3 class="text-xl font-semibold">Daftar Kosong</h3>
-                    <p>Belum ada anime yang ditambahkan. Silakan tambahkan satu!</p>
-                </div>`;
-                return;
-            }
+        // 2. LOGIKA PARALLAX SEDERHANA
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const shape = document.getElementById('shape');
             
-            animeData.forEach((anime, index) => {
-                const card = document.createElement('div');
-                card.className = 'glass-effect rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 hover:border-indigo-500/50 hover:-translate-y-1.5';
-                card.dataset.id = anime.id;
-                card.style.animationDelay = `${index * 50}ms`;
-                card.classList.add('fade-in');
-
-                card.innerHTML = `
-                    <div>
-                        <span class="px-3 py-1 text-xs font-bold rounded-full ${getStatusBadge(anime.status)}">${anime.status}</span>
-                        <h3 class="text-xl font-bold mt-3 text-white truncate" title="${anime.title}">${anime.title}</h3>
-                        <p class="text-gray-400 mt-1">Episode: ${anime.episode}</p>
-                    </div>
-                    <div class="flex justify-end space-x-2 mt-4">
-                        <button data-id="${anime.id}" class="edit-btn p-2 rounded-md bg-gray-700/50 hover:bg-indigo-600 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
-                        </button>
-                        <button data-id="${anime.id}" class="delete-btn p-2 rounded-md bg-gray-700/50 hover:bg-red-600 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </div>
-                `;
-                animeListContainer.appendChild(card);
-            });
-            attachActionListeners();
-        };
-
-        // --- FORM & ACTIONS ---
-        const handleFormSubmit = (e) => {
-            e.preventDefault();
-            const title = animeTitleInput.value.trim();
-            const episode = parseInt(animeEpisodeInput.value);
-            const status = animeStatusInput.value;
-            const id = animeIdInput.value;
-
-            if (!title || isNaN(episode)) {
-                showNotification('Judul dan episode harus diisi dengan benar.', 'error');
-                return;
-            }
-
-            if (isEditMode) {
-                const animeIndex = animeData.findIndex(a => a.id == id);
-                if (animeIndex > -1) {
-                    animeData[animeIndex] = { ...animeData[animeIndex], title, episode, status };
-                }
-                showNotification('Anime berhasil diperbarui!', 'success');
-                exitEditMode();
-            } else {
-                const newAnime = { id: Date.now(), title, episode, status };
-                animeData.push(newAnime);
-                showNotification('Anime berhasil ditambahkan!', 'success');
-            }
-            
-            saveData();
-            renderAnimeList();
-            animeForm.reset();
-        };
-
-        const startEditMode = (id) => {
-            const animeToEdit = animeData.find(a => a.id == id);
-            if (!animeToEdit) return;
-
-            isEditMode = true;
-            animeIdInput.value = animeToEdit.id;
-            animeTitleInput.value = animeToEdit.title;
-            animeEpisodeInput.value = animeToEdit.episode;
-            animeStatusInput.value = animeToEdit.status;
-
-            submitBtn.textContent = 'Update Anime';
-            submitBtn.classList.replace('bg-indigo-600', 'bg-yellow-600');
-            submitBtn.classList.replace('hover:bg-indigo-500', 'hover:bg-yellow-500');
-            submitBtn.classList.replace('shadow-indigo-600/30', 'shadow-yellow-600/30');
-            cancelEditBtn.classList.remove('hidden');
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            animeTitleInput.focus();
-        };
-
-        const exitEditMode = () => {
-            isEditMode = false;
-            animeForm.reset();
-            animeIdInput.value = '';
-
-            submitBtn.textContent = 'Tambah Anime';
-            submitBtn.classList.replace('bg-yellow-600', 'bg-indigo-600');
-            submitBtn.classList.replace('hover:bg-yellow-500', 'hover:bg-indigo-500');
-            submitBtn.classList.replace('shadow-yellow-600/30', 'shadow-indigo-600/30');
-            cancelEditBtn.classList.add('hidden');
-        };
-
-        const deleteAnime = async (id) => {
-            const confirmed = await showConfirmation('Hapus Anime', 'Apakah Anda yakin ingin menghapus anime ini dari daftar? Aksi ini tidak dapat dibatalkan.');
-            
-            if (confirmed) {
-                const cardToDelete = animeListContainer.querySelector(`[data-id='${id}']`);
-                if(cardToDelete) {
-                    cardToDelete.classList.add('fade-out');
-                    cardToDelete.addEventListener('animationend', () => {
-                        animeData = animeData.filter(a => a.id != id);
-                        saveData();
-                        renderAnimeList();
-                        showNotification('Anime telah dihapus.', 'info');
-                    }, { once: true });
-                }
-            }
-        };
-
-        // --- EVENT LISTENERS ---
-        const attachActionListeners = () => {
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    startEditMode(btn.dataset.id);
-                });
-            });
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteAnime(btn.dataset.id);
-                });
-            });
-        };
-
-        animeForm.addEventListener('submit', handleFormSubmit);
-        cancelEditBtn.addEventListener('click', exitEditMode);
-
-        // --- INITIALIZATION ---
-        const initializeApp = () => {
-            loadData();
-            renderAnimeList();
-        };
-
-        initializeApp();
-    });
+            // Menggerakkan lingkaran di background lebih lambat dari scroll (efek depth)
+            shape.style.transform = `translateY(${scrolled * 0.5}px)`;
+        });
     </script>
 </body>
 </html>
