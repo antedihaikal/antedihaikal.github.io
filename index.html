@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimalist Parallax Portfolio</title>
+    <title>Responsive Minimalist Portfolio</title>
     <style>
-        /* 1. SETUP DASAR & MINIMALIS */
+        /* 1. RESET & VARIABLES */
         :root {
             --bg-color: #f4f4f4;
             --text-color: #1a1a1a;
             --accent-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -21,7 +25,7 @@
             overflow-x: hidden; /* Mencegah scroll samping */
         }
 
-        /* 2. CUSTOM CURSOR (INTERAKTIF) */
+        /* 2. CUSTOM CURSOR (DESKTOP ONLY) */
         .cursor {
             width: 20px;
             height: 20px;
@@ -33,6 +37,7 @@
             transform: translate(-50%, -50%);
             transition: width 0.3s, height 0.3s, background-color 0.3s;
             mix-blend-mode: difference;
+            display: none; /* Default hidden, dinyalakan via JS di desktop */
         }
         
         .cursor.hovered {
@@ -42,23 +47,24 @@
             border-color: white;
         }
 
-        /* 3. PARALLAX SECTIONS */
+        /* 3. LAYOUT & SECTIONS */
         section {
             position: relative;
-            min-height: 100vh;
+            min-height: 100vh; /* Full screen height */
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 2rem;
-            box-sizing: border-box;
+            width: 100%;
         }
 
-        /* Efek Sticky untuk Parallax tumpuk */
+        /* Sticky Effect (Tumpukan Kartu) */
         .sticky-section {
             position: sticky;
             top: 0;
             background-color: var(--bg-color);
-            box-shadow: 0 -10px 20px rgba(0,0,0,0.05); /* Bayangan halus */
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
+            overflow: hidden;
         }
 
         /* HERO SECTION */
@@ -66,35 +72,42 @@
             z-index: 1;
             flex-direction: column;
             align-items: flex-start;
-            padding-left: 10%;
+            padding-left: 10%; /* Desktop padding */
+            padding-right: 5%;
         }
 
+        /* Responsive Font Size using CLAMP 
+           (Min: 3rem, Ideal: 8vw, Max: 6rem) */
         h1 {
-            font-size: 5rem;
-            line-height: 1;
+            font-size: clamp(3rem, 8vw, 6rem); 
+            line-height: 1.1;
             margin: 0;
             font-weight: 300;
             letter-spacing: -2px;
             opacity: 0;
-            animation: fadeIn Up 1s forwards 0.5s;
+            animation: fadeInUp 1s forwards 0.5s;
+            position: relative;
+            z-index: 2;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.5rem);
             margin-top: 20px;
             opacity: 0.6;
+            max-width: 90%;
+            z-index: 2;
         }
 
-        /* SHAPE MENGAMBANG (PARALLAX ELEMEN) */
+        /* Shape Background */
         .floating-shape {
             position: absolute;
-            right: 10%;
+            right: 5%;
             top: 20%;
-            width: 300px;
-            height: 300px;
+            width: clamp(200px, 30vw, 400px); /* Responsive Size */
+            height: clamp(200px, 30vw, 400px);
             background-color: #e0e0e0;
             border-radius: 50%;
-            z-index: -1;
+            z-index: 1;
         }
 
         /* ABOUT SECTION */
@@ -102,10 +115,23 @@
             z-index: 2;
             background-color: #1a1a1a;
             color: #f4f4f4;
+            text-align: left;
         }
 
         .content-box {
-            max-width: 600px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .content-box h2 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            margin-bottom: 1rem;
+        }
+        
+        .content-box p {
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            line-height: 1.6;
+            opacity: 0.8;
         }
 
         /* WORK SECTION */
@@ -113,30 +139,33 @@
             z-index: 3;
             background-color: #f4f4f4;
             color: #1a1a1a;
+            flex-direction: column;
         }
         
         .project-card {
             width: 100%;
             max-width: 800px;
-            height: 400px;
+            height: clamp(250px, 40vh, 400px); /* Height responsive */
             background-color: #ddd;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: transform 0.5s ease;
+            margin-top: 2rem;
+            border-radius: 8px;
         }
 
-        .project-card:hover {
-            transform: scale(0.98); /* Interaktif saat hover */
+        .project-card h3 {
+            font-size: 2rem;
         }
 
         /* ANIMATION */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* TOMBOL HOVER TARGET */
+        /* BUTTON */
         a.btn {
             display: inline-block;
             margin-top: 30px;
@@ -144,9 +173,37 @@
             color: inherit;
             border-bottom: 1px solid currentColor;
             padding-bottom: 5px;
-            cursor: none; /* Hilangkan kursor asli */
+            font-size: 1.2rem;
         }
 
+        /* 4. MEDIA QUERIES (KHUSUS HP) */
+        @media (max-width: 768px) {
+            .hero {
+                padding-left: 2rem;
+                padding-right: 2rem;
+                justify-content: center; /* Tengah secara vertikal di HP */
+            }
+
+            .floating-shape {
+                right: -50px; /* Geser sedikit keluar layar biar artistik */
+                top: 15%;
+                opacity: 0.5; /* Lebih transparan di HP biar teks terbaca */
+            }
+
+            /* Matikan logic cursor custom di CSS level juga */
+            .cursor {
+                display: none !important; 
+            }
+            
+            /* Kembalikan cursor default */
+            a.btn, .project-card {
+                cursor: pointer;
+            }
+            
+            section {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -156,13 +213,13 @@
     <section class="sticky-section hero">
         <div class="floating-shape" id="shape"></div>
         <h1>Hello.<br>I am a Creator.</h1>
-        <p class="subtitle">Scrolling down to discover more.</p>
+        <p class="subtitle">Designed for simplicity and impact.</p>
     </section>
 
     <section class="sticky-section about">
         <div class="content-box">
-            <h2>Minimalist Approach</h2>
-            <p>Saya percaya bahwa desain yang baik adalah sesedikit mungkin desain. Fokus pada esensi, fungsi, dan kejernihan.</p>
+            <h2>Minimalist.</h2>
+            <p>Di layar seluler, desain ini tetap terbaca dengan jelas. Ruang kosong (whitespace) dijaga agar mata tidak lelah, sementara tipografi menyesuaikan ukuran layar secara otomatis.</p>
             <a href="#" class="btn hover-target">Read My Bio</a>
         </div>
     </section>
@@ -171,34 +228,4 @@
         <div class="content-box">
             <h2>Latest Work</h2>
             <div class="project-card hover-target">
-                <h3>Project Alpha</h3>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        // 1. LOGIKA CUSTOM CURSOR
-        const cursor = document.getElementById('cursor');
-        const hoverTargets = document.querySelectorAll('.hover-target');
-
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-
-        hoverTargets.forEach(target => {
-            target.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-            target.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-        });
-
-        // 2. LOGIKA PARALLAX SEDERHANA
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const shape = document.getElementById('shape');
-            
-            // Menggerakkan lingkaran di background lebih lambat dari scroll (efek depth)
-            shape.style.transform = `translateY(${scrolled * 0.5}px)`;
-        });
-    </script>
-</body>
-</html>
+                <h3>Project
