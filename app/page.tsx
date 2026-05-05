@@ -16,9 +16,6 @@ export default function Portfolio() {
       {/* 1. BAGIAN KONTEN (BISA DI-SCROLL) */}
       <main className="overflow-y-auto p-4 md:p-8 z-10 custom-scrollbar">
         <div className="max-w-7xl mx-auto flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6">
-          <footer className="md:hidden relative z-[100] bg-white border-t border-slate-200">
-            <Sidebar />
-          </footer>
           <div className="md:col-span-7 w-full md:h-full">
             <HeroSection />
           </div>
