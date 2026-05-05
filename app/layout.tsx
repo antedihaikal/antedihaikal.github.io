@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Antedi Haikal",
   description: "Web Protofolio",
+  icons: {
+    icon: '/logo.svg'
+  }
 };
 
 export default function RootLayout({
