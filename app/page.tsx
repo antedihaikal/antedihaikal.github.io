@@ -5,7 +5,6 @@ import RightPanel from './RightPanel';
 export default function Portfolio() {
   return (
     <div className="h-screen w-full overflow-hidden touch-manipulation">
-    // grid-rows-[1fr_auto]: Baris 1 ambil sisa layar, Baris 2 ikut tinggi konten (Sidebar)
     <div className="grid grid-rows-[1fr_auto] h-screen w-full bg-slate-50 overflow-hidden relative">
       
       {/* Background - taruh di dalam div terpisah agar tidak merusak grid */}
