@@ -15,6 +15,11 @@
         --color-secondary: #64748b;
         --color-dark: #0f172a;
       }
+
+      /* Override Dark Mode Tailwind v4 agar bisa menggunakan manual class */
+      @custom-variant dark (&:where(.dark, .dark *));
+
+      /* Animasi Hamburger Menu */
       .hamburger-line {
         @apply my-[2px] block h-[2px] w-[30px] bg-dark dark:bg-white transition duration-300 ease-in-out;
       }
@@ -31,7 +36,7 @@
 
     <title>Portfolio Tailwind CSS</title>
 
-    <!-- Dark Mode Initializer -->
+    <!-- Dark Mode Initializer (Mencegah FOUC / kedipan warna) -->
     <script>
       if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
@@ -41,7 +46,7 @@
     </script>
   </head>
 
-  <body class="dark:bg-dark text-dark dark:text-white transition-colors duration-300">
+  <body class="bg-white dark:bg-dark text-dark dark:text-white transition-colors duration-300">
     <!-- Header Start -->
     <header class="absolute top-0 left-0 z-10 flex w-full items-center bg-transparent transition-all duration-300" id="header">
       <div class="container mx-auto">
@@ -69,16 +74,15 @@
                 
                 <!-- Dark Mode Toggle -->
                 <li class="mt-3 flex items-center pl-8 lg:mt-0">
-                  <div class="flex">
+                  <label for="dark-toggle" class="flex cursor-pointer items-center">
                     <span class="mr-2 text-sm text-slate-500">light</span>
-                    <input type="checkbox" class="hidden" id="dark-toggle" />
-                    <label for="dark-toggle">
-                      <div class="flex h-5 w-9 cursor-pointer items-center rounded-full bg-slate-500 p-1">
-                        <div class="toggle-circle h-4 w-4 rounded-full bg-white transition duration-300 ease-in-out"></div>
-                      </div>
-                    </label>
+                    <div class="relative flex items-center">
+                      <input type="checkbox" id="dark-toggle" class="peer sr-only" />
+                      <div class="block h-5 w-9 rounded-full bg-slate-500 transition-colors peer-checked:bg-primary"></div>
+                      <div class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300 peer-checked:translate-x-4"></div>
+                    </div>
                     <span class="ml-2 text-sm text-slate-500">dark</span>
-                  </div>
+                  </label>
                 </li>
               </ul>
             </nav>
@@ -141,7 +145,7 @@
     <!-- About Section End -->
 
     <!-- Portfolio Section Start -->
-    <section id="portfolio" class="bg-slate-100 pt-36 pb-16 dark:bg-slate-800">
+    <section id="portfolio" class="bg-slate-100 pt-36 pb-16 dark:bg-slate-800 transition-colors duration-300">
       <div class="container mx-auto">
         <div class="w-full px-4 text-center">
           <h4 class="mb-2 text-lg font-semibold text-primary">Portfolio</h4>
@@ -166,7 +170,7 @@
     <!-- Portfolio Section End -->
 
     <!-- Blog Section Start -->
-    <section id="blog" class="bg-white pt-36 pb-32 dark:bg-dark">
+    <section id="blog" class="bg-white pt-36 pb-32 dark:bg-dark transition-colors duration-300">
       <div class="container mx-auto">
         <div class="w-full px-4 text-center">
           <h4 class="mb-2 text-lg font-semibold text-primary">Blog</h4>
@@ -175,7 +179,7 @@
 
         <div class="flex flex-wrap mt-10">
           <div class="w-full px-4 lg:w-1/3">
-            <div class="mb-10 overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-800">
+            <div class="mb-10 overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-800 transition-colors duration-300">
               <img src="https://picsum.photos/360/200?random=3" alt="Programming" class="w-full" />
               <div class="py-8 px-6">
                 <h3><a href="#" class="mb-3 block truncate text-xl font-semibold hover:text-primary">Tips Belajar Programming</a></h3>
@@ -185,7 +189,7 @@
             </div>
           </div>
           <div class="w-full px-4 lg:w-1/3">
-            <div class="mb-10 overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-800">
+            <div class="mb-10 overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-800 transition-colors duration-300">
               <img src="https://picsum.photos/360/200?random=4" alt="Keyboard" class="w-full" />
               <div class="py-8 px-6">
                 <h3><a href="#" class="mb-3 block truncate text-xl font-semibold hover:text-primary">Review Keyboard GMMK Pro</a></h3>
@@ -195,7 +199,7 @@
             </div>
           </div>
           <div class="w-full px-4 lg:w-1/3">
-            <div class="mb-10 overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-800">
+            <div class="mb-10 overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-800 transition-colors duration-300">
               <img src="https://picsum.photos/360/200?random=5" alt="Coffee" class="w-full" />
               <div class="py-8 px-6">
                 <h3><a href="#" class="mb-3 block truncate text-xl font-semibold hover:text-primary">Menikmati Secangkir Kopi</a></h3>
@@ -210,7 +214,7 @@
     <!-- Blog Section End -->
 
     <!-- Contact Section Start -->
-    <section id="contact" class="pt-36 pb-32 dark:bg-slate-800">
+    <section id="contact" class="pt-36 pb-32 dark:bg-slate-800 transition-colors duration-300">
       <div class="container mx-auto">
         <div class="w-full px-4 text-center">
           <h4 class="mb-2 text-lg font-semibold text-primary">Contact</h4>
@@ -221,15 +225,15 @@
           <div class="w-full lg:mx-auto lg:w-2/3 mt-10">
             <div class="mb-8 w-full px-4">
               <label for="name" class="text-base font-bold text-primary">Nama</label>
-              <input type="text" id="name" class="w-full rounded-md bg-slate-200 dark:bg-slate-700 p-3 text-dark dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+              <input type="text" id="name" class="w-full rounded-md bg-slate-200 dark:bg-slate-700 p-3 text-dark dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors duration-300" />
             </div>
             <div class="mb-8 w-full px-4">
               <label for="email" class="text-base font-bold text-primary">Email</label>
-              <input type="email" id="email" class="w-full rounded-md bg-slate-200 dark:bg-slate-700 p-3 text-dark dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+              <input type="email" id="email" class="w-full rounded-md bg-slate-200 dark:bg-slate-700 p-3 text-dark dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors duration-300" />
             </div>
             <div class="mb-8 w-full px-4">
               <label for="message" class="text-base font-bold text-primary">Pesan</label>
-              <textarea id="message" class="h-32 w-full rounded-md bg-slate-200 dark:bg-slate-700 p-3 text-dark dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+              <textarea id="message" class="h-32 w-full rounded-md bg-slate-200 dark:bg-slate-700 p-3 text-dark dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors duration-300"></textarea>
             </div>
             <div class="w-full px-4">
               <button type="button" class="w-full rounded-full bg-primary py-3 px-8 text-base font-semibold text-white transition duration-500 hover:opacity-80 hover:shadow-lg">Kirim</button>
@@ -241,9 +245,9 @@
     <!-- Contact Section End -->
 
     <!-- Footer Start -->
-    <footer class="bg-dark pt-24 pb-12 text-white">
+    <footer class="bg-slate-900 pt-24 pb-12 text-white">
       <div class="container mx-auto text-center">
-        <p class="text-sm font-medium text-slate-500">
+        <p class="text-sm font-medium text-slate-400">
           Dibuat dengan <span class="text-pink-500">❤️</span> oleh Sandhika Galih, menggunakan <span class="font-bold text-sky-500">Tailwind CSS</span>.
         </p>
       </div>
@@ -251,12 +255,12 @@
     <!-- Footer End -->
 
     <!-- Back to top Start -->
-    <a href="#home" class="fixed bottom-4 right-4 z-[9999] hidden h-14 w-14 items-center justify-center rounded-full bg-primary p-4 hover:animate-pulse" id="to-top">
+    <a href="#home" class="fixed bottom-4 right-4 z-[9999] hidden h-14 w-14 items-center justify-center rounded-full bg-primary p-4 hover:animate-pulse shadow-lg" id="to-top">
       <span class="mt-2 block h-5 w-5 rotate-45 border-t-2 border-l-2 border-white"></span>
     </a>
     <!-- Back to top End -->
 
-    <!-- Javascript Inline Pengganti script.js -->
+    <!-- Javascript Inline -->
     <script>
       // 1. Navbar Fixed & Back to Top Toggle
       window.onscroll = function () {
@@ -290,12 +294,13 @@
       const darkToggle = document.querySelector('#dark-toggle');
       const html = document.querySelector('html');
       
-      // Mengatur status toggle switch sesuai dengan mode awal
-      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      // Memastikan posisi toggle sinkron dengan tema saat halaman pertama dimuat
+      if (html.classList.contains('dark')) {
         darkToggle.checked = true;
       }
 
-      darkToggle.addEventListener('click', function () {
+      // Event change pada checkbox dark mode
+      darkToggle.addEventListener('change', function () {
         if (darkToggle.checked) {
           html.classList.add('dark');
           localStorage.theme = 'dark';
