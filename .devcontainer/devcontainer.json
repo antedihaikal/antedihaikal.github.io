@@ -1,0 +1,34 @@
+{
+  "name": "Next.js & Tailwind Dev Environment",
+  // Menggunakan image Node.js versi terbaru yang stabil
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+
+  "features": {
+    // Memastikan git terinstall dengan baik
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  // Pengaturan otomatis saat VS Code (atau Codespaces) terbuka
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",     // Extension wajib Tailwind (Autocomplete)
+        "dbaeumer.vscode-eslint",         // Linter untuk menjaga kualitas kode
+        "esbenp.prettier-vscode",         // Biar kode rapi otomatis
+        "dsznajder.es7-react-js-snippets" // Shortcut buat bikin komponen Next.js
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "tailwindCSS.emmetCompletions": true
+      }
+    }
+  },
+
+  // Menjalankan perintah otomatis setelah container dibuat
+  // Jadi kamu gak perlu ketik 'npm install' lagi secara manual
+  "postCreateCommand": "npm install",
+
+  // Membuka port 3000 (default Next.js) agar bisa diakses browser
+  "forwardPorts": [3000]
+}
