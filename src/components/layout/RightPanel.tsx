@@ -1,20 +1,25 @@
 import { 
   MapPin, 
-  Play, SkipBack, SkipForward, Clock
+  Play, SkipBack, SkipForward, Clock // Play, SkipBack, SkipForward sepertinya tidak dipakai langsung di file ini, tapi biarkan saja jika nanti berguna
 } from 'lucide-react';
 import Image from 'next/image';
-import { portfolioData } from './lib/dummyData';
-import MusicPlayer from './components/MusicPlayer';
+import { portfolioData } from '@/lib/dummyData'
+import MusicPlayer from '@/components/ui/MusicPlayer';
 
 const WidgetCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white p-5 rounded-3xl shadow-sm border border-slate-100 ${className}`}>
+  // Menambahkan text-slate-800 di pembungkus agar teks tidak putih (bawaan dari page.tsx)
+  <div className={`bg-white text-slate-800 p-5 rounded-3xl shadow-sm border border-slate-100 ${className}`}>
     {children}
   </div>
 );
 
 export default function RightPanel(){
   return(
-    <div className="flex flex-col gap-4 h-full">
+    // 1. Ubah ke <aside>
+    // 2. Sembunyikan di HP (hidden), tampilkan sebagai kolom di desktop (lg:flex)
+    // 3. Beri lebar pasti (w-72 atau w-80) dan shrink-0 agar bentuknya dipertahankan
+    // 4. overflow-y-auto untuk berjaga-jaga jika layarnya pendek
+    <aside className="flex flex-col gap-4 w-full lg:w-72 xl:w-80 shrink-0 py-6 px-4 md:px-0 md:pr-6">      
       {/* Hometown & Tags */}
       <WidgetCard>
         <div className="flex items-start gap-2 mb-3">
@@ -54,12 +59,18 @@ export default function RightPanel(){
         </div>
         <div className="flex gap-2">
           {portfolioData.mediaImages.map((img, idx) => (
-            <div key={idx} className="relative w-full aspect-square rounded-xl overflow-hidden">
-              <Image src={img} alt={`Media ${idx}`} fill className="object-cover" />
+            <div key={idx} className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-200">
+              <Image 
+                src={img} 
+                alt={`Media ${idx}`} 
+                fill 
+                className="object-cover hover:scale-110 transition-transform duration-300" 
+              />
             </div>
           ))}
         </div>
       </WidgetCard>
-    </div>
+      
+    </aside>
   )
 };
