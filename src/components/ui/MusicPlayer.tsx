@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 
 // DAFTAR PLAYLIST
@@ -32,38 +32,36 @@ export default function MusicPlayer() {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        // Tangkap promise agar tidak error di Safari/Chrome iOS
+        audioRef.current.play().catch(err => console.log("Play error:", err));
       }
       setIsPlaying(!isPlaying);
     }
   };
 
-  const handleNext = () => {
-    setTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
-    setIsPlaying(true); 
+  // Fungsi khusus untuk sinkronisasi audio di iOS 
+  const changeTrack = (newIndex: number) => {
+    setTrackIndex(newIndex);
     setCurrentTime(0);
-  };
-
-  const handlePrev = () => {
-    setTrackIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
-    setIsPlaying(true);
-    setCurrentTime(0);
-  };
-
-  useEffect(() => {
+    
+    // PERBAIKAN KHUSUS iOS: Jangan menunggu useEffect.
+    // Ubah src dan play() di dalam siklus klik agar Safari menganggapnya sebagai tindakan user (User-Initiated Action).
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.src = PLAYLIST[newIndex].src;
       audioRef.current.load();
       
       if (isPlaying) {
         audioRef.current.play().catch(err => {
-          console.log("Autoplay dicegah browser:", err);
+          console.log("Autoplay dicegah browser iOS:", err);
           setIsPlaying(false);
         });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackIndex]);
+  };
+
+  const handleNext = () => changeTrack((trackIndex + 1) % PLAYLIST.length);
+  const handlePrev = () => changeTrack((trackIndex - 1 + PLAYLIST.length) % PLAYLIST.length);
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -92,7 +90,6 @@ export default function MusicPlayer() {
   const progressPercent = (currentTime / safeDuration) * 100;
 
   return (
-    // PERBAIKAN 1: Tambahkan relative, z-50, dan pointer-events-auto agar klik tembus dan tidak tertutup layer lain
     <div className="relative z-50 pointer-events-auto flex flex-col w-full bg-white p-5 rounded-3xl shadow-sm border border-slate-100 transition-all hover:shadow-md">
       
       <audio 
@@ -103,16 +100,17 @@ export default function MusicPlayer() {
         onDurationChange={handleLoadedMetadata}
         onEnded={handleNext}
         preload="metadata"
+        playsInline // PERBAIKAN KHUSUS iOS: Mencegah error fullscreen hijacking pada media
       />
 
       <div className="flex items-center gap-4">
         
         <div className="flex items-center gap-2 shrink-0">
-          {/* PERBAIKAN 2: Tambahkan type="button" agar tidak memicu aksi default browser */}
+          {/* PERBAIKAN: class touch-manipulation menghilangkan delay klik 300ms di iOS */}
           <button 
             type="button"
             onClick={handlePrev}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors active:scale-95 cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors active:scale-95 cursor-pointer touch-manipulation"
           >
             <SkipBack className="w-4 h-4 fill-current pointer-events-none" />
           </button>
@@ -120,7 +118,7 @@ export default function MusicPlayer() {
           <button 
             type="button"
             onClick={togglePlay}
-            className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all active:scale-95 shadow-sm shadow-blue-200 cursor-pointer"
+            className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all active:scale-95 shadow-sm shadow-blue-200 cursor-pointer touch-manipulation"
           >
             {isPlaying ? <Pause className="w-5 h-5 fill-current pointer-events-none" /> : <Play className="w-5 h-5 fill-current ml-1 pointer-events-none" />}
           </button>
@@ -128,7 +126,7 @@ export default function MusicPlayer() {
           <button 
             type="button"
             onClick={handleNext}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors active:scale-95 cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors active:scale-95 cursor-pointer touch-manipulation"
           >
             <SkipForward className="w-4 h-4 fill-current pointer-events-none" />
           </button>
@@ -143,9 +141,9 @@ export default function MusicPlayer() {
           </div>
 
           <div className="relative flex items-center h-4 group/slider">
-            <div className="absolute w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="absolute w-full h-1.5 bg-slate-100 rounded-full overflow-hidden pointer-events-none">
               <div 
-                className="h-full bg-blue-600 rounded-full"
+                className="h-full bg-blue-600 rounded-full pointer-events-none"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -155,14 +153,16 @@ export default function MusicPlayer() {
               style={{ left: `calc(${progressPercent}% - 6px)` }}
             />
 
-            {/* PERBAIKAN 3: Tambahkan touch-none agar menggeser lagu tidak bikin layar HP ikut ke-scroll, dan z-20 agar jadi prioritas klik */}
+            {/* PERBAIKAN: Gunakan onInput agar geser/drag lebih presisi di iOS, dan style WebkitAppearance */}
             <input 
               type="range" 
               min={0} 
               max={duration || 100} 
               value={currentTime} 
               onChange={handleSeek}
+              onInput={handleSeek}
               className="absolute w-full h-full opacity-0 cursor-pointer z-20 touch-none"
+              style={{ WebkitAppearance: 'none' }}
             />
           </div>
         </div>
