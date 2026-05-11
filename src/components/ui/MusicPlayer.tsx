@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 
 // DAFTAR PLAYLIST
@@ -28,36 +28,46 @@ export default function MusicPlayer() {
   };
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      // PERBAIKAN 6S+: Langsung panggil play() dan tangkap promise-nya untuk iOS lama
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setIsPlaying(true);
+        }).catch(err => {
+          console.log("iOS Play Error:", err);
+          setIsPlaying(false);
+        });
       } else {
-        // Tangkap promise agar tidak error di Safari/Chrome iOS
-        audioRef.current.play().catch(err => console.log("Play error:", err));
+        setIsPlaying(true);
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
-  // Fungsi khusus untuk sinkronisasi audio di iOS 
   const changeTrack = (newIndex: number) => {
-    setTrackIndex(newIndex);
-    setCurrentTime(0);
+    if (!audioRef.current) return;
     
-    // PERBAIKAN KHUSUS iOS: Jangan menunggu useEffect.
-    // Ubah src dan play() di dalam siklus klik agar Safari menganggapnya sebagai tindakan user (User-Initiated Action).
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = PLAYLIST[newIndex].src;
-      audioRef.current.load();
-      
-      if (isPlaying) {
-        audioRef.current.play().catch(err => {
-          console.log("Autoplay dicegah browser iOS:", err);
-          setIsPlaying(false);
-        });
+    // PERBAIKAN 6S+: Memanipulasi DOM audio secara langsung (Synchronous)
+    // Jangan menunggu React setState (trackIndex), karena delay akan diblokir oleh Safari lama
+    audioRef.current.pause();
+    audioRef.current.src = PLAYLIST[newIndex].src;
+    audioRef.current.load();
+    
+    if (isPlaying) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => console.log("iOS Autoplay Blocked:", err));
       }
     }
+    
+    // Baru update state React UI-nya
+    setTrackIndex(newIndex);
+    setCurrentTime(0);
   };
 
   const handleNext = () => changeTrack((trackIndex + 1) % PLAYLIST.length);
@@ -99,18 +109,18 @@ export default function MusicPlayer() {
         onLoadedMetadata={handleLoadedMetadata}
         onDurationChange={handleLoadedMetadata}
         onEnded={handleNext}
-        preload="metadata"
-        playsInline // PERBAIKAN KHUSUS iOS: Mencegah error fullscreen hijacking pada media
+        preload="auto" // PERBAIKAN 6S+: Ubah dari metadata ke auto agar buffer lebih siap di iOS
+        playsInline 
       />
 
       <div className="flex items-center gap-4">
         
         <div className="flex items-center gap-2 shrink-0">
-          {/* PERBAIKAN: class touch-manipulation menghilangkan delay klik 300ms di iOS */}
           <button 
             type="button"
             onClick={handlePrev}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors active:scale-95 cursor-pointer touch-manipulation"
+            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 active:scale-95 cursor-pointer touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }} // Cegah blok abu-abu saat di-tap
           >
             <SkipBack className="w-4 h-4 fill-current pointer-events-none" />
           </button>
@@ -118,7 +128,8 @@ export default function MusicPlayer() {
           <button 
             type="button"
             onClick={togglePlay}
-            className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all active:scale-95 shadow-sm shadow-blue-200 cursor-pointer touch-manipulation"
+            className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full active:scale-95 shadow-sm shadow-blue-200 cursor-pointer touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             {isPlaying ? <Pause className="w-5 h-5 fill-current pointer-events-none" /> : <Play className="w-5 h-5 fill-current ml-1 pointer-events-none" />}
           </button>
@@ -126,7 +137,8 @@ export default function MusicPlayer() {
           <button 
             type="button"
             onClick={handleNext}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors active:scale-95 cursor-pointer touch-manipulation"
+            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 active:scale-95 cursor-pointer touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <SkipForward className="w-4 h-4 fill-current pointer-events-none" />
           </button>
@@ -153,7 +165,11 @@ export default function MusicPlayer() {
               style={{ left: `calc(${progressPercent}% - 6px)` }}
             />
 
-            {/* PERBAIKAN: Gunakan onInput agar geser/drag lebih presisi di iOS, dan style WebkitAppearance */}
+            {/* 
+              PERBAIKAN 6S+: 
+              1. Hapus 'touch-none' agar iOS 15 tidak memblokir geseran jari.
+              2. Ubah 'opacity-0' jadi style opacity: 0.01 (Safari lama kadang tidak mendeteksi klik pada elemen tembus pandang 100%).
+            */}
             <input 
               type="range" 
               min={0} 
@@ -161,8 +177,12 @@ export default function MusicPlayer() {
               value={currentTime} 
               onChange={handleSeek}
               onInput={handleSeek}
-              className="absolute w-full h-full opacity-0 cursor-pointer z-20 touch-none"
-              style={{ WebkitAppearance: 'none' }}
+              className="absolute w-full h-full cursor-pointer z-20"
+              style={{ 
+                opacity: 0.01, 
+                WebkitAppearance: 'none',
+                background: 'transparent' 
+              }}
             />
           </div>
         </div>
